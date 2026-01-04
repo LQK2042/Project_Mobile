@@ -1,0 +1,134 @@
+[
+    {
+        "merged": "com.example.doanck.app-release-50:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.doanck.app-main-51:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_order_history.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_order_history.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/xml_data_extraction_rules.xml.flat",
+        "source": "com.example.doanck.app-main-51:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_item_product.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/item_product.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/xml_backup_rules.xml.flat",
+        "source": "com.example.doanck.app-main-51:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_category.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_category.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-xxxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_intro.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_intro.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_cart.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_cart.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-xxxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.example.doanck.app-main-51:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_reset_password.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_reset_password.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-xhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-hdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_main.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-xhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-hdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_item_category.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/item_category.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-mdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_fragment_shop_detail.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/fragment_shop_detail.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_login.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_item_shop.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/item_shop.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_otp_auth.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_otp_auth.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_forget_password.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_forget_password.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_profile.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_profile.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_register.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_register.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-xxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_activity_product_grid.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/activity_product_grid.xml"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.doanck.app-main-51:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.example.doanck.app-release-50:/layout_fragment_home.xml.flat",
+        "source": "com.example.doanck.app-main-51:/layout/fragment_home.xml"
+    }
+]
