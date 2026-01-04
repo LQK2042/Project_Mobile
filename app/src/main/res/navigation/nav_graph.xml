@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.doanck.feature.home.HomeFragment"
+        android:label="Home">
+
+        <action
+            android:id="@+id/action_home_to_shopDetail"
+            app:destination="@id/shopDetailFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/shopDetailFragment"
+        android:name="com.example.doanck.feature.shop.ShopDetailFragment"
+        android:label="Shop Detail">
+
+        <argument
+            android:name="shopId"
+            app:argType="integer"/>
+
+        <argument
+            android:name="shopName"
+            app:argType="string"/>
+    </fragment>
+
+</navigation>
