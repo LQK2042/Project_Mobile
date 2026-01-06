@@ -1,6 +1,7 @@
 package com.example.doanck.data.local
 
 import android.content.Context
+<<<<<<< HEAD
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -11,11 +12,21 @@ import kotlinx.coroutines.flow.map
 
 // Exposed DataStore extension so callers can use `context.locationDataStore`
 val Context.locationDataStore by preferencesDataStore(name = "location_prefs")
+=======
+import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.first
+
+private val Context.dataStore by preferencesDataStore(name = "location_prefs")
+>>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
 
 data class SavedAddress(val address: String, val lat: Double?, val lng: Double?)
 
 object LocationStore {
     private val KEY_ADDR = stringPreferencesKey("addr_text")
+<<<<<<< HEAD
     private val KEY_LAT = longPreferencesKey("lat_bits")
     private val KEY_LNG = longPreferencesKey("lng_bits")
 
@@ -33,11 +44,29 @@ object LocationStore {
             if (lat != null && lng != null) {
                 p[KEY_LAT] = lat.toBits()
                 p[KEY_LNG] = lng.toBits()
+=======
+    private val KEY_LAT = doublePreferencesKey("addr_lat")
+    private val KEY_LNG = doublePreferencesKey("addr_lng")
+
+    suspend fun get(context: Context): SavedAddress? {
+        val prefs = context.dataStore.data.first()
+        val addr = prefs[KEY_ADDR] ?: return null
+        return SavedAddress(addr, prefs[KEY_LAT], prefs[KEY_LNG])
+    }
+
+    suspend fun save(context: Context, address: String, lat: Double?, lng: Double?) {
+        context.dataStore.edit { p ->
+            p[KEY_ADDR] = address
+            if (lat != null && lng != null) {
+                p[KEY_LAT] = lat
+                p[KEY_LNG] = lng
+>>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
             } else {
                 p.remove(KEY_LAT); p.remove(KEY_LNG)
             }
         }
     }
+<<<<<<< HEAD
 
     // Convenience: save only lat/lng
     suspend fun saveLatLng(context: Context, lat: Double, lng: Double) {
@@ -54,4 +83,6 @@ object LocationStore {
             val lng = prefs[KEY_LNG]?.let { Double.fromBits(it) } ?: 0.0
             lat to lng
         }
+=======
+>>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
 }

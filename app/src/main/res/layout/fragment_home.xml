@@ -4,9 +4,70 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+<<<<<<< HEAD
     android:background="#FA9200"
     android:padding="16dp"
     android:fitsSystemWindows="true">
+=======
+    android:padding="12dp"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <!-- ✅ NÚT ĐỊNH VỊ LẠI (vòng vàng) -->
+            <ImageButton
+                android:id="@+id/btnLocate"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_mylocation"
+                android:contentDescription="Locate"
+                android:padding="6dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/tvDeliverLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Giao tới"
+                android:textSize="12sp"
+                android:alpha="0.7"
+                android:layout_marginStart="10dp"
+                app:layout_constraintStart_toEndOf="@id/btnLocate"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:id="@+id/tvCurrentAddress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Chọn địa chỉ"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:layout_constraintStart_toStartOf="@id/tvDeliverLabel"
+                app:layout_constraintTop_toBottomOf="@id/tvDeliverLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+>>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
 
     <!-- Location -->
     <com.google.android.material.card.MaterialCardView
@@ -99,6 +160,7 @@
         android:id="@+id/rvFoods"
         android:layout_width="0dp"
         android:layout_height="0dp"
+<<<<<<< HEAD
         android:layout_marginTop="14dp"
         android:overScrollMode="never"
         app:layout_constraintTop_toBottomOf="@id/cardSearch"
@@ -140,5 +202,13 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="70dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
+=======
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/cardAddress"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+>>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
 
 </androidx.constraintlayout.widget.ConstraintLayout>
