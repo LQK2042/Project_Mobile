@@ -45,7 +45,6 @@ class ProductAdapter : ListAdapter<Product, ProductAdapter.VH>(DIFF) {
         val url = item.imageUrl
 
         if (!url.isNullOrBlank() && (url.startsWith("http://") || url.startsWith("https://"))) {
-            // ✅ Ảnh online
             Glide.with(holder.itemView)
                 .load(url)
                 .centerCrop()
