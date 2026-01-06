@@ -1,1 +1,0 @@
-E:\Android\Project_Mobile-nhk\app\build\intermediates\compiled_navigation_res\release\compileReleaseNavigationResources\navigation_nav_graph.xml.flat 
