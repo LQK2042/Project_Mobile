@@ -4,15 +4,16 @@ import android.util.Log
 import com.example.doanck.data.remote.common.RemoteDataSource
 import com.example.doanck.domain.model.Product
 import com.example.doanck.domain.model.Shop
-
+import retrofit2.HttpException
+import java.io.IOException
 
 class SupabaseRemoteDataSource(
     private val service: SupabaseService
 ) : RemoteDataSource {
 
-    override suspend fun getShops(): List<Shop> {
+    override suspend fun getShops(): List<Shop> = try {
         val rows = service.getShops()
-        return rows.map {
+        rows.map {
             Shop(
                 id = it.id,
                 name = it.name,
@@ -22,14 +23,21 @@ class SupabaseRemoteDataSource(
                 logoUrl = it.logo_url
             )
         }
+    } catch (e: HttpException) {
+        Log.e("API", "getShops HTTP ${e.code()} body=${e.response()?.errorBody()?.string()}", e)
+        emptyList()
+    } catch (e: IOException) {
+        Log.e("API", "getShops network error: ${e.localizedMessage}", e)
+        emptyList()
     }
 
-    override suspend fun getProducts(shopId: Int): List<Product> {
-        Log.d("API", "loadProducts shopId=$shopId")
-//        require(shopId.isNotBlank()) { "shopId is blank" }
-
-        val rows = service.getProductsByShop(shopIdEq = "eq.$shopId")
-        return rows.map {
+    override suspend fun getProducts(shopId: String): List<Product> = try {
+        val rows = service.getProductsByShop(
+            shopIdFilter = "eq.$shopId",
+            isAvailable = "eq.true",
+            order = "created_at.desc"
+        )
+        rows.map {
             Product(
                 id = it.id,
                 name = it.name,
@@ -37,5 +45,11 @@ class SupabaseRemoteDataSource(
                 imageUrl = it.image_url
             )
         }
+    } catch (e: HttpException) {
+        Log.e("API", "getProducts HTTP ${e.code()} body=${e.response()?.errorBody()?.string()}", e)
+        emptyList()
+    } catch (e: IOException) {
+        Log.e("API", "getProducts network error: ${e.localizedMessage}", e)
+        emptyList()
     }
 }

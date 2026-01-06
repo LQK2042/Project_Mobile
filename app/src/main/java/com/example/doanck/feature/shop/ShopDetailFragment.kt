@@ -16,13 +16,15 @@ class ShopDetailFragment : Fragment(R.layout.fragment_shop_detail) {
 
     private val vm: ShopViewModel by viewModels()
 
-    private val shopId: Int by lazy { arguments?.getInt("shopId") ?: -1 }
+    // ✅ UUID là String, không dùng -1 nữa
+    private val shopId: String? by lazy { arguments?.getString("shopId") }
     private val shopName: String by lazy { arguments?.getString("shopName").orEmpty() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (shopId == -1) {
+        val id = shopId
+        if (id.isNullOrBlank()) {
             findNavController().popBackStack()
             return
         }
@@ -39,6 +41,6 @@ class ShopDetailFragment : Fragment(R.layout.fragment_shop_detail) {
             vm.products.collectLatest { adapter.submitList(it) }
         }
 
-        vm.loadProducts(shopId)
+        vm.loadProducts(id)
     }
 }

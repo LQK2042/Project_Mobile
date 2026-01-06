@@ -4,5 +4,5 @@ import com.example.doanck.domain.model.Shop
 
 interface ShopRepository {
     suspend fun getShops(): List<Shop>
-    suspend fun getProducts(shopId: Int): List<Product>
+    suspend fun getProducts(shopId: String): List<Product>
 }

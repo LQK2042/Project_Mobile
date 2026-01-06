@@ -1,20 +1,22 @@
 package com.example.doanck.data.remote.supabase.dto
 
-// bảng shops: id uuid, name text, address text, phone text, rating numeric, logo_url text
-data class ShopRowDto(
+import com.google.gson.annotations.SerializedName
+
+data class ShopRow(
     val id: String,
     val name: String,
-    val address: String? = null,
-    val phone: String? = null,
-    val rating: Double? = null,
-    val logo_url: String? = null
+    val address: String?,
+    val phone: String?,
+    val rating: Double?,
+    @SerializedName("logo_url") val logo_url: String?
 )
 
-// bảng products: id uuid, shop_id uuid, name text, price int4, image_url text
-data class ProductRowDto(
+data class ProductRow(
     val id: String,
-    val shop_id: String,
     val name: String,
     val price: Int,
-    val image_url: String? = null
+    @SerializedName("image_url") val image_url: String?,
+    @SerializedName("shop_id") val shop_id: String,
+    @SerializedName("is_available") val is_available: Boolean,
+    @SerializedName("created_at") val created_at: String?
 )

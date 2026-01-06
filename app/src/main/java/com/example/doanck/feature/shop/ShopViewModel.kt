@@ -9,15 +9,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ShopViewModel : ViewModel() {
-
     private val repo = ServiceLocator.shopRepository
 
     private val _products = MutableStateFlow<List<Product>>(emptyList())
     val products: StateFlow<List<Product>> = _products
 
-    fun loadProducts(shopId: Int) {
+    fun loadProducts(shopId: String) {
         viewModelScope.launch {
             _products.value = repo.getProducts(shopId)
         }
     }
 }
+
