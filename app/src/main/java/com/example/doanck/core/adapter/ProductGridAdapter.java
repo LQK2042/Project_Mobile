@@ -54,9 +54,8 @@ public class ProductGridAdapter extends RecyclerView.Adapter<ProductGridAdapter.
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProduct = itemView.findViewById(R.id.imgProduct);
-            txtName = itemView.findViewById(R.id.txtName);
-            txtPrice = itemView.findViewById(R.id.txtPrice);
+            txtName = itemView.findViewById(R.id.tvName);
+            txtPrice = itemView.findViewById(R.id.tvPrice);
         }
     }
 }
-

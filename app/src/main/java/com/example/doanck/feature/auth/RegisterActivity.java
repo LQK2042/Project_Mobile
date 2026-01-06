@@ -19,8 +19,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-//23162037 Le Nhut Quoc Khang
-
 public class RegisterActivity extends AppCompatActivity {
 
     TextInputEditText editFirstName, editLastName, editEmail, editPassword, editConfirm, editImageURL;
@@ -50,10 +48,10 @@ public class RegisterActivity extends AppCompatActivity {
     private void doRegister() {
         String firstName = editFirstName.getText().toString().trim();
         String lastName = editLastName.getText().toString().trim();
-        String account = editEmail.getText().toString().trim(); // dùng làm Account
+        String account = editEmail.getText().toString().trim();
         String pass = editPassword.getText().toString().trim();
         String confirm = editConfirm.getText().toString().trim();
-        String imageUrl = editImageURL.getText().toString().trim(); // optional
+        String imageUrl = editImageURL.getText().toString().trim();
 
         // Validate
         if (firstName.isEmpty() || lastName.isEmpty() || account.isEmpty()

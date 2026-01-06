@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ApiClient {
 
-    private static final String BASE_URL = "https://midtermhehe.azurewebsites.net/"; // TODO: change to real URL
+    private static final String BASE_URL = ""; // TODO: change to real URL
     private static Retrofit retrofit = null;
 
     public static Retrofit getClient() {

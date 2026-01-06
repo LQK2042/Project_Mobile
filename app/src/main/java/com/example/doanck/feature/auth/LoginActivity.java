@@ -19,7 +19,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-//23162016 Dinh Quoc Dat
+
 public class LoginActivity extends AppCompatActivity {
 
     TextInputEditText editEmail, editPassword;
