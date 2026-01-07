@@ -7,18 +7,21 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.doanck.R
 import com.example.doanck.data.remote.supabase.AuthStore
+import com.example.doanck.data.repository.ProfileRepository
 import com.example.doanck.feature.auth.LoginActivity
 import kotlinx.coroutines.launch
 
 class ProfileActivity : AppCompatActivity() {
 
     private val vm: ProfileViewModel by viewModels()
+    private val profileRepo by lazy { ProfileRepository(this) }
 
     private lateinit var btnBack: ImageButton
     private lateinit var ivAvatar: ImageView
@@ -28,6 +31,15 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvPhone: TextView
     private lateinit var tvRole: TextView
     private lateinit var btnLogout: Button
+
+    // Launcher để chọn ảnh từ gallery
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            uploadAvatar(uri)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,6 +117,31 @@ class ProfileActivity : AppCompatActivity() {
     private fun setupClicks() {
         btnBack.setOnClickListener { finish() }
         btnLogout.setOnClickListener { logout() }
+
+        // Click vào avatar để chọn ảnh mới
+        ivAvatar.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+    }
+
+    private fun uploadAvatar(uri: android.net.Uri) {
+        Toast.makeText(this, "Đang upload avatar...", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            try {
+                val newUrl = profileRepo.uploadAvatar(uri)
+                Toast.makeText(this@ProfileActivity, "Upload thành công!", Toast.LENGTH_SHORT).show()
+
+                // Reload avatar
+                ivAvatar.load(newUrl) {
+                    placeholder(R.drawable.ic_avatar_placeholder)
+                    error(R.drawable.ic_avatar_placeholder)
+                    crossfade(true)
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@ProfileActivity, "Upload lỗi: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun logout() {

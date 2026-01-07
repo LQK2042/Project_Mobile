@@ -12,7 +12,19 @@
 
         <action
             android:id="@+id/action_home_to_shopDetail"
-            app:destination="@id/shopDetailFragment"/>
+            app:destination="@id/shopDetailFragment" />
+
+        <action
+            android:id="@+id/action_home_to_login"
+            app:destination="@id/loginFragment" />
+
+        <action
+            android:id="@+id/action_home_to_profile"
+            app:destination="@id/profileFragment" />
+
+        <action
+            android:id="@+id/action_home_to_cart"
+            app:destination="@id/cartFragment" />
     </fragment>
 
     <fragment
@@ -22,11 +34,70 @@
 
         <argument
             android:name="shopId"
-            app:argType="string"/>
+            app:argType="string" />
 
         <argument
             android:name="shopName"
-            app:argType="string"/>
+            app:argType="string" />
+
+        <argument
+            android:name="shopAddress"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="shopImageUrl"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <action
+            android:id="@+id/action_shopDetail_to_cart"
+            app:destination="@id/cartFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="com.example.doanck.ui.cart.CartFragment"
+        android:label="Cart">
+
+        <action
+            android:id="@+id/action_cart_to_login"
+            app:destination="@id/loginFragment" />
+
+        <action
+            android:id="@+id/action_cart_to_orderTracking"
+            app:destination="@id/orderTrackingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.doanck.ui.auth.LoginFragment"
+        android:label="Login">
+
+        <argument
+            android:name="redirect"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="autoCheckout"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.doanck.ui.profile.ProfileFragment"
+        android:label="Profile" />
+
+    <fragment
+        android:id="@+id/orderTrackingFragment"
+        android:name="com.example.doanck.ui.order.OrderTrackingFragment"
+        android:label="Order Tracking">
+        <argument
+            android:name="orderId"
+            app:argType="string" />
+    </fragment>
+
 
 </navigation>

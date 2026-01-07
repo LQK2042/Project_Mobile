@@ -38,7 +38,9 @@ class LoginActivity : AppCompatActivity() {
         tvForgot = findViewById(R.id.tvGoForgot)
 
         btnLogin.setOnClickListener { doLogin() }
-        tvRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
+        tvRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+        }
         tvForgot.setOnClickListener { startActivity(Intent(this, ForgotPasswordActivity::class.java)) }
     }
 

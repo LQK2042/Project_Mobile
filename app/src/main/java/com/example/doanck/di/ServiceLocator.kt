@@ -1,6 +1,7 @@
 package com.example.doanck.di
 
 import android.content.Context
+import com.example.doanck.data.remote.OrderApi
 import com.example.doanck.data.remote.supabase.AuthStore
 import com.example.doanck.data.remote.supabase.SupabaseConfig
 import com.example.doanck.data.remote.supabase.SupabaseRemoteDataSource
@@ -52,6 +53,10 @@ object ServiceLocator {
 
     private val supabaseService: SupabaseService by lazy {
         retrofit.create(SupabaseService::class.java)
+    }
+
+    val orderApi: OrderApi by lazy {
+        retrofit.create(OrderApi::class.java)
     }
 
     private val remote by lazy { SupabaseRemoteDataSource(supabaseService) }

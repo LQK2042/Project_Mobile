@@ -42,8 +42,9 @@ class SupabaseRemoteDataSource(
             Product(
                 id = it.id,
                 name = it.name,
-                price = it.price,
-                imageUrl = it.image_url // nếu Product.imageUrl là String? thì OK
+                price = it.price.toLong(),
+                imageUrl = it.image_url,
+                shopId = it.shop_id
             )
         }
     } catch (e: HttpException) {

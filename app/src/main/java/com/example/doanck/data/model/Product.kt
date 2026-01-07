@@ -1,4 +1,4 @@
-package com.example.doanck.domain.model
+package com.example.doanck.data.model
 
 data class Product(
     val id: String,

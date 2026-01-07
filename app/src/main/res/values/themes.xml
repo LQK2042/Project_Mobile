@@ -1,9 +1,37 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme - Orange Theme -->
     <style name="Base.Theme.Doanck" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/orange_primary</item>
+        <item name="colorPrimaryDark">@color/orange_primary_dark</item>
+        <item name="colorAccent">@color/orange_accent</item>
+
+        <!-- Material 3 colors -->
+        <item name="colorPrimaryContainer">@color/orange_primary_light</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/orange_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Background -->
+        <item name="android:colorBackground">@color/background_orange</item>
+        <item name="android:windowBackground">@color/background_orange</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/orange_primary_dark</item>
+        <item name="android:navigationBarColor">@color/orange_primary</item>
     </style>
 
     <style name="Theme.Doanck" parent="Base.Theme.Doanck" />
+
+    <!-- Button style -->
+    <style name="OrangeButton" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">@color/orange_primary</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- Outlined Button -->
+    <style name="OrangeOutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/orange_primary</item>
+        <item name="android:textColor">@color/orange_primary</item>
+    </style>
 </resources>

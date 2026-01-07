@@ -10,8 +10,10 @@ import android.graphics.Color
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
@@ -22,10 +24,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.example.doanck.R
+import com.example.doanck.data.local.OrderStore
 import com.example.doanck.data.remote.supabase.AuthStore
 import com.example.doanck.feature.auth.EXTRA_RETURN_RESULT
 import com.example.doanck.feature.auth.LoginActivity
@@ -37,6 +44,7 @@ import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -52,6 +60,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvAddress: TextView
     private lateinit var btnLocate: ImageButton
     private lateinit var ibProfile: ImageButton
+    private lateinit var ibCart: ImageButton
+    private lateinit var btnTrackOrder: Button
 
     private var searchJob: Job? = null
 
@@ -101,6 +111,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvAddress = view.findViewById(R.id.tvCurrentAddress)
         btnLocate = view.findViewById(R.id.btnLocate)
         ibProfile = view.findViewById(R.id.ibProfile)
+        ibCart = view.findViewById(R.id.ibCart)
+        btnTrackOrder = view.findViewById(R.id.btnTrackOrder)
 
         // Hiện địa chỉ đã lưu nếu có
         tvAddress.text = prefs.getString(KEY_ADDR, "Chọn địa chỉ")
@@ -109,19 +121,27 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tvAddress.setOnClickListener { showUpdateDialog() }
         btnLocate.setOnClickListener { startAutoUpdateLocation() }
 
-        // ✅ Profile: bấm là yêu cầu login
+        // ✅ Cart: chuyển đến CartFragment
+        ibCart.setOnClickListener {
+            findNavController().navigate(R.id.action_home_to_cart)
+        }
+
+        // ✅ Theo dõi đơn hàng: hiện nút nếu có đơn hiện tại
+        val currentOrderId = OrderStore.currentOrderId(requireContext())
+        if (!currentOrderId.isNullOrBlank()) {
+            btnTrackOrder.visibility = View.VISIBLE
+        }
+        btnTrackOrder.setOnClickListener {
+            // Không cần truyền orderId - OrderTrackingFragment sẽ tự lấy từ OrderStore
+            findNavController().navigate(R.id.orderTrackingFragment)
+        }
+
+        // ✅ Profile: nếu đã login -> popup menu, nếu chưa -> chuyển login
         ibProfile.setOnClickListener {
-            requireLoginThen {
-                // Mở profile (đổi className đúng activity bạn có)
-                val intent = Intent().setClassName(
-                    requireContext(),
-                    "com.example.doanck.feature.profile.ProfileActivity"
-                )
-                try {
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Chưa tìm thấy ProfileActivity", Toast.LENGTH_SHORT).show()
-                }
+            if (AuthStore.isLoggedIn(requireContext())) {
+                showAvatarMenu()
+            } else {
+                findNavController().navigate(R.id.action_home_to_login)
             }
         }
 
@@ -135,7 +155,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         adapter = ShopAdapter { shop ->
             // ✅ click shop -> bắt login
             requireLoginThen {
-                val args = bundleOf("shopId" to shop.id, "shopName" to shop.name)
+                val args = bundleOf(
+                    "shopId" to shop.id,
+                    "shopName" to shop.name,
+                    "shopAddress" to (shop.address ?: ""),
+                    "shopImageUrl" to (shop.logoUrl ?: "")
+                )
                 findNavController().navigate(R.id.action_home_to_shopDetail, args)
             }
         }
@@ -146,6 +171,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             vm.shops.collect { adapter.submitList(it) }
         }
         vm.load()
+
+        // ✅ Load và observe avatar
+        vm.loadAvatar()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.avatarUrl.collectLatest { url ->
+                    if (!url.isNullOrBlank()) {
+                        ibProfile.load(url) {
+                            placeholder(R.drawable.ic_avatar_placeholder)
+                            error(R.drawable.ic_avatar_placeholder)
+                            transformations(CircleCropTransformation())
+                            crossfade(true)
+                        }
+                    } else {
+                        ibProfile.setImageResource(R.drawable.ic_avatar_placeholder)
+                    }
+                }
+            }
+        }
 
         // ===== Search + Suggestions =====
         val sv = view.findViewById<SearchView>(R.id.svFood)
@@ -306,6 +350,41 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun saveAddress(addr: String) {
         prefs.edit().putString(KEY_ADDR, addr).apply()
         tvAddress.text = addr
+    }
+
+    /**
+     * ✅ Popup menu khi đã đăng nhập: Profile / Logout
+     */
+    private fun showAvatarMenu() {
+        val popup = PopupMenu(requireContext(), ibProfile)
+        popup.menu.add("Profile")
+        popup.menu.add("Logout")
+
+        popup.setOnMenuItemClickListener { item ->
+            when (item.title.toString()) {
+                "Profile" -> {
+                    // Mở ProfileActivity
+                    val intent = Intent().setClassName(
+                        requireContext(),
+                        "com.example.doanck.feature.profile.ProfileActivity"
+                    )
+                    try {
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "Chưa tìm thấy ProfileActivity", Toast.LENGTH_SHORT).show()
+                    }
+                    true
+                }
+                "Logout" -> {
+                    AuthStore.clear(requireContext())
+                    Toast.makeText(requireContext(), "Đã đăng xuất", Toast.LENGTH_SHORT).show()
+                    // Cập nhật UI nếu cần
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
     }
 
     private fun requireLoginThen(action: () -> Unit) {
