@@ -13,12 +13,3 @@
 .externalNativeBuild
 .cxx
 local.properties
-
-.idea/
-.gradle/
-**/build/
-build/
-local.properties
-api/.env
-.env
-

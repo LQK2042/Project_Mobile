@@ -16,16 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-<<<<<<< HEAD
-=======
         gradlePluginPortal()
->>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
     }
 }
 
 rootProject.name = "doanck"
 include(":app")
-<<<<<<< HEAD
- 
-=======
->>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
