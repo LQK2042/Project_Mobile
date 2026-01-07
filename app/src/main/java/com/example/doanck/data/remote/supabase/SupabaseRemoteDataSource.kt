@@ -3,6 +3,7 @@ package com.example.doanck.data.remote.supabase
 import android.util.Log
 import com.example.doanck.data.remote.common.RemoteDataSource
 import com.example.doanck.domain.model.Product
+import com.example.doanck.domain.model.ProductSuggest
 import com.example.doanck.domain.model.Shop
 import retrofit2.HttpException
 import java.io.IOException
@@ -42,7 +43,7 @@ class SupabaseRemoteDataSource(
                 id = it.id,
                 name = it.name,
                 price = it.price,
-                imageUrl = it.image_url
+                imageUrl = it.image_url // nếu Product.imageUrl là String? thì OK
             )
         }
     } catch (e: HttpException) {
@@ -52,4 +53,37 @@ class SupabaseRemoteDataSource(
         Log.e("API", "getProducts network error: ${e.localizedMessage}", e)
         emptyList()
     }
+
+    override suspend fun searchProducts(keyword: String): List<ProductSuggest> {
+        return try {
+            val key = keyword.trim()
+            if (key.isEmpty()) {
+                emptyList()
+            } else {
+                val rows = service.searchProducts(
+                    nameFilter = "ilike.*$key*"
+                )
+
+                rows.mapNotNull { r ->
+                    val shop = r.shops ?: return@mapNotNull null
+                    ProductSuggest(
+                        productId = r.id,
+                        name = r.name,
+                        price = r.price,
+                        imageUrl = r.image_url,
+                        shopId = r.shop_id,
+                        shopName = shop.name,
+                        shopLogoUrl = shop.logo_url
+                    )
+                }
+            }
+        } catch (e: HttpException) {
+            Log.e("API", "searchProducts HTTP ${e.code()} body=${e.response()?.errorBody()?.string()}", e)
+            emptyList()
+        } catch (e: IOException) {
+            Log.e("API", "searchProducts network error: ${e.localizedMessage}", e)
+            emptyList()
+        }
+    }
+
 }
