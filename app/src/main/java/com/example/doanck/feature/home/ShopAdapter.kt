@@ -3,10 +3,12 @@ package com.example.doanck.feature.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.doanck.R
 import com.example.doanck.domain.model.Shop
 
@@ -30,27 +32,24 @@ class ShopAdapter(
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val tvName = itemView.findViewById<TextView>(R.id.tvShopName)
-        private val tvAddress = itemView.findViewById<TextView>(R.id.tvShopAddress)
+        private val imgShop = itemView.findViewById<ImageView>(R.id.imgShop)
 
         fun bind(shop: Shop) {
             tvName.text = shop.name
-            tvAddress.text = shop.address
 
-            itemView.setOnClickListener {
-                onClick(shop)
-            }
+            Glide.with(itemView)
+                .load(shop.logoUrl)
+                .centerCrop()
+                .into(imgShop)
+
+            itemView.setOnClickListener { onClick(shop) }
         }
     }
 
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<Shop>() {
-            override fun areItemsTheSame(old: Shop, new: Shop): Boolean {
-                return old.id == new.id
-            }
-
-            override fun areContentsTheSame(old: Shop, new: Shop): Boolean {
-                return old == new
-            }
+            override fun areItemsTheSame(oldItem: Shop, newItem: Shop) = oldItem.id == newItem.id
+            override fun areContentsTheSame(oldItem: Shop, newItem: Shop) = oldItem == newItem
         }
     }
 }

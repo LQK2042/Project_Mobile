@@ -5,15 +5,18 @@ import android.app.Activity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -27,7 +30,11 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -40,6 +47,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var tvAddress: TextView
     private lateinit var btnLocate: ImageButton
+
+    private var searchJob: Job? = null
 
     private val prefs by lazy(LazyThreadSafetyMode.NONE) {
         requireContext().getSharedPreferences("location_prefs", Context.MODE_PRIVATE)
@@ -74,77 +83,113 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         tvAddress = view.findViewById(R.id.tvCurrentAddress)
-        btnLocate = view.findViewById(R.id.btnLocate) // ⚠️ đảm bảo XML đúng id này
+        btnLocate = view.findViewById(R.id.btnLocate)
 
         // Hiện địa chỉ đã lưu nếu có
         tvAddress.text = prefs.getString(KEY_ADDR, "Chọn địa chỉ")
 
-        // ✅ Bấm vào địa chỉ -> hiện dialog Cập nhật / Hủy
+        // Bấm vào địa chỉ -> dialog cập nhật
         tvAddress.setOnClickListener { showUpdateDialog() }
-
         btnLocate.setOnClickListener { startAutoUpdateLocation() }
 
-        // RecyclerView shops (giữ như bạn)
+        // RecyclerView shops
         val rv = view.findViewById<RecyclerView>(R.id.rvShops)
+        if (rv.itemDecorationCount == 0) {
+            val spacingPx = (12 * resources.displayMetrics.density).toInt()
+            rv.addItemDecoration(GridSpacingItemDecoration(2, spacingPx, true))
+        }
+
         adapter = ShopAdapter { shop ->
             val args = bundleOf("shopId" to shop.id, "shopName" to shop.name)
             findNavController().navigate(R.id.action_home_to_shopDetail, args)
         }
         rv.adapter = adapter
 
-        lifecycleScope.launch {
+        // ✅ collect shops: dùng viewLifecycleOwner
+        viewLifecycleOwner.lifecycleScope.launch {
             vm.shops.collect { adapter.submitList(it) }
         }
         vm.load()
-        val sv = view.findViewById<androidx.appcompat.widget.SearchView>(R.id.svFood)
-        val rvSuggest = view.findViewById<RecyclerView>(R.id.rvSuggest)
 
+        // ===== Search + Suggestions =====
+        val sv = view.findViewById<SearchView>(R.id.svFood)
+        setupSearchViewAlwaysHint(sv)
+
+        val rvSuggest = view.findViewById<RecyclerView>(R.id.rvSuggest)
         val suggestAdapter = ProductSuggestAdapter { s ->
-            // click gợi ý -> mở quán đó
             val args = bundleOf("shopId" to s.shopId, "shopName" to s.shopName)
             findNavController().navigate(R.id.action_home_to_shopDetail, args)
 
-            // clear search + ẩn suggestions
             sv.setQuery("", false)
             sv.clearFocus()
         }
         rvSuggest.adapter = suggestAdapter
 
-// collect suggestions
+        // collect suggestions
         viewLifecycleOwner.lifecycleScope.launch {
             vm.suggestions.collect { list ->
-                val show = list.isNotEmpty()
-                rvSuggest.visibility = if (show) View.VISIBLE else View.GONE
+                rvSuggest.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
                 suggestAdapter.submitList(list)
             }
         }
 
-// debounce search
-        var searchJob: kotlinx.coroutines.Job? = null
-
-        sv.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+        // debounce search
+        sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean = true
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val key = newText.orEmpty()
                 searchJob?.cancel()
                 searchJob = viewLifecycleOwner.lifecycleScope.launch {
-                    kotlinx.coroutines.delay(300)
+                    delay(300)
                     vm.doSearch(key)
                 }
                 return true
             }
         })
+    }
 
+    override fun onDestroyView() {
+        searchJob?.cancel()
+        super.onDestroyView()
+    }
+
+    /**
+     * ✅ Ép SearchView mở sẵn + hiện hint ngay từ đầu (không cần click)
+     */
+    private fun setupSearchViewAlwaysHint(sv: SearchView) {
+        // ép mở luôn
+        sv.setIconifiedByDefault(false)
+        sv.isIconified = false
+        sv.onActionViewExpanded()
+
+        // đặt hint (chắc chắn)
+        sv.queryHint = "Nay bạn muốn ăn gì?"
+
+        // chỉnh màu text/hint
+        val searchText = sv.findViewById<SearchView.SearchAutoComplete>(
+            androidx.appcompat.R.id.search_src_text
+        )
+        searchText.setTextColor(Color.BLACK)
+        searchText.setHintTextColor(Color.DKGRAY)
+
+        // bỏ nền/underline mặc định
+        val plate = sv.findViewById<View>(androidx.appcompat.R.id.search_plate)
+        plate.setBackgroundColor(Color.TRANSPARENT)
+
+        // đổi màu icon search
+        val magIcon = sv.findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
+        magIcon.setColorFilter(Color.BLACK)
+
+        // không bật bàn phím khi vào màn, nhưng hint vẫn hiện
+        sv.clearFocus()
     }
 
     private fun showUpdateDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Cập nhật địa chỉ giao hàng?")
             .setMessage("Dùng vị trí hiện tại để cập nhật địa chỉ giao hàng.")
-            .setPositiveButton("Cập nhật") { _, _ ->
-                startAutoUpdateLocation()
-            }
+            .setPositiveButton("Cập nhật") { _, _ -> startAutoUpdateLocation() }
             .setNegativeButton("Hủy", null)
             .show()
     }
@@ -178,7 +223,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val req = LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 10_000).build()
         val settingsRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(req)
-            .setAlwaysShow(true) // ✅ luôn show popup bật vị trí nếu đang tắt
+            .setAlwaysShow(true)
             .build()
 
         settingsClient.checkLocationSettings(settingsRequest)
@@ -202,8 +247,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     Toast.makeText(requireContext(), "Không lấy được vị trí, hãy bật GPS", Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
-                val addr = reverseGeocode(loc.latitude, loc.longitude) ?: "Vị trí hiện tại"
-                saveAddress(addr)
+
+                // ✅ Geocoder chạy IO để khỏi lag
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val addr = withContext(Dispatchers.IO) {
+                        reverseGeocode(loc.latitude, loc.longitude)
+                    } ?: "Vị trí hiện tại"
+                    saveAddress(addr)
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Lỗi lấy vị trí", Toast.LENGTH_SHORT).show()
