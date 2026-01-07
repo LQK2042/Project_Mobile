@@ -30,7 +30,7 @@ object ServiceLocator {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    private val supabaseService: SupabaseService =
+    val supabaseService: SupabaseService =
         retrofit.create(SupabaseService::class.java)
 
     private val remote = SupabaseRemoteDataSource(supabaseService)

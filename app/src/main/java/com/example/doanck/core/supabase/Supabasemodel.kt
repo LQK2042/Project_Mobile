@@ -1,5 +1,6 @@
 package com.example.doanck.core.supabase
 
+import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 
 data class SbUser(
@@ -25,4 +26,10 @@ data class Session(
 data class SignUpResponse(
     @SerializedName("user") val user: SbUser?,
     @SerializedName("session") val session: Session?
+)
+
+data class UserResponse(
+    @SerializedName("id") val id: String?,
+    @SerializedName("email") val email: String?,
+    @SerializedName("user_metadata") val userMetadata: JsonObject?
 )

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -22,8 +23,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.doanck.R
 import com.example.doanck.core.supabase.AuthStore
+import com.example.doanck.core.supabase.SupabaseAuthClient
+import com.example.doanck.core.supabase.UserResponse
 import com.example.doanck.feature.auth.EXTRA_RETURN_RESULT
 import com.example.doanck.feature.auth.LoginActivity
 import com.google.android.gms.common.api.ResolvableApiException
@@ -34,6 +38,9 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import com.google.android.gms.location.SettingsClient
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.Locale
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -52,8 +59,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var tvAddress: TextView
     private lateinit var btnLocate: ImageButton
     private lateinit var rvShops: RecyclerView
-    private lateinit var adapter: ShopAdapter
+    private lateinit var adapter: TopShopAdapter
     private lateinit var navCart: ImageButton
+    private lateinit var ibProfile: ImageButton
+
+    // ===== Delivery prefs =====
+    private val deliveryPrefs by lazy(LazyThreadSafetyMode.NONE) {
+        requireContext().getSharedPreferences(PREF_DELIVERY, Context.MODE_PRIVATE)
+    }
+
+    private companion object {
+        const val PREF_DELIVERY = "delivery_prefs"
+        const val KEY_DELIVERY_ADDR = "delivery_addr_text"
+        const val KEY_DELIVERY_LAT = "delivery_lat"
+        const val KEY_DELIVERY_LNG = "delivery_lng"
+    }
 
     // Pending action after login
     private var pendingAfterLogin: (() -> Unit)? = null
@@ -61,19 +81,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val loginLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
             if (res.resultCode == Activity.RESULT_OK && AuthStore.isLoggedIn(requireContext())) {
+                refreshAuthUi()
                 pendingAfterLogin?.invoke()
             }
             pendingAfterLogin = null
         }
-
-    // ===== Local store =====
-    private val locationPrefs by lazy(LazyThreadSafetyMode.NONE) {
-        requireContext().getSharedPreferences("location_prefs", Context.MODE_PRIVATE)
-    }
-
-    private companion object {
-        const val KEY_ADDR = "addr_text"
-    }
 
     // 1) Xin quyền
     private val permissionLauncher =
@@ -103,17 +115,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         btnLocate = view.findViewById(R.id.btnLocate)
         rvShops = view.findViewById(R.id.rvShops)
         navCart = view.findViewById(R.id.navCart)
+        ibProfile = view.findViewById(R.id.ibProfile)
+
+        loadDeliveryAddress()
+
+        refreshAuthUi()
 
         // Hiện địa chỉ đã lưu nếu có
-        tvAddress.text = locationPrefs.getString(KEY_ADDR, "Chọn địa chỉ")
+        tvAddress.text = deliveryPrefs.getString(KEY_DELIVERY_ADDR, "Chọn địa chỉ")
 
         // Bấm vào địa chỉ -> hiện dialog Cập nhật / Hủy
-        tvAddress.setOnClickListener { showUpdateDialog() }
+        tvAddress.setOnClickListener { showAddressInputDialog() }
 
         // Icon -> cập nhật luôn
         btnLocate.setOnClickListener { startAutoUpdateLocation() }
 
-        adapter = ShopAdapter { shop ->
+        adapter = TopShopAdapter { shop ->
             requireLoginThen {
                 val intent = Intent().setClassName(
                     requireContext(),
@@ -148,14 +165,38 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         vm.load()
     }
 
-    private fun showUpdateDialog() {
+    override fun onResume() {
+        super.onResume()
+        refreshAuthUi()
+    }
+
+    private fun loadDeliveryAddress() {
+        val addr = deliveryPrefs.getString(KEY_DELIVERY_ADDR, "Chọn địa chỉ")
+        tvAddress.text = addr
+    }
+
+    private fun saveDeliveryAddress(addr: String, lat: Double? = null, lng: Double? = null) {
+        deliveryPrefs.edit().apply {
+            putString(KEY_DELIVERY_ADDR, addr)
+            if (lat != null) putFloat(KEY_DELIVERY_LAT, lat.toFloat())
+            if (lng != null) putFloat(KEY_DELIVERY_LNG, lng.toFloat())
+            apply()
+        }
+        tvAddress.text = addr
+    }
+
+    private fun showAddressInputDialog() {
+        val input = EditText(requireContext())
+        input.setText(tvAddress.text?.toString().orEmpty())
+
         AlertDialog.Builder(requireContext())
-            .setTitle("Cập nhật địa chỉ giao hàng?")
-            .setMessage("Dùng vị trí hiện tại để cập nhật địa chỉ giao hàng.")
-            .setPositiveButton("Cập nhật") { _, _ ->
-                startAutoUpdateLocation()
-            }
+            .setTitle("Địa chỉ giao hàng")
+            .setView(input)
             .setNegativeButton("Hủy", null)
+            .setPositiveButton("Lưu") { _, _ ->
+                val addr = input.text.toString().trim()
+                if (addr.isNotEmpty()) saveDeliveryAddress(addr)
+            }
             .show()
     }
 
@@ -213,7 +254,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     return@addOnSuccessListener
                 }
                 val addr = reverseGeocode(loc.latitude, loc.longitude) ?: "Vị trí hiện tại"
-                saveAddress(addr)
+                saveDeliveryAddress(addr, loc.latitude, loc.longitude)
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Lỗi lấy vị trí", Toast.LENGTH_SHORT).show()
@@ -230,9 +271,34 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-    private fun saveAddress(addr: String) {
-        locationPrefs.edit().putString(KEY_ADDR, addr).apply()
-        tvAddress.text = addr
+    private fun refreshAuthUi() {
+        if (!::ibProfile.isInitialized) return
+
+        val token = AuthStore.accessToken(requireContext())
+        if (token.isNullOrBlank()) {
+            ibProfile.setImageResource(android.R.drawable.ic_menu_myplaces)
+            return
+        }
+
+        SupabaseAuthClient.service.getUser("Bearer $token")
+            .enqueue(object : Callback<UserResponse> {
+                override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+                    if (!isAdded) return
+                    val meta = response.body()?.userMetadata
+                    val avatarUrl = meta?.get("avatar_url")?.asString
+
+                    if (!avatarUrl.isNullOrBlank()) {
+                        ibProfile.load(avatarUrl)
+                    } else {
+                        ibProfile.setImageResource(android.R.drawable.ic_menu_myplaces)
+                    }
+                }
+
+                override fun onFailure(call: Call<UserResponse>, t: Throwable) {
+                    if (!isAdded) return
+                    ibProfile.setImageResource(android.R.drawable.ic_menu_myplaces)
+                }
+            })
     }
 
     private fun requireLoginThen(action: () -> Unit) {

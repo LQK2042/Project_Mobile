@@ -22,6 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".feature.auth.LoginActivity" />
+        <activity android:name=".feature.auth.RegisterActivity" />
+        <activity android:name=".feature.auth.ForgotPasswordActivity" />
+        <activity android:name=".feature.auth.OtpAuthActivity" />
+        <activity android:name=".feature.auth.ResetPasswordActivity" />
+
     </application>
 
 </manifest>
