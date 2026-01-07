@@ -22,6 +22,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".feature.auth.LoginActivity" />
+        <activity android:name=".feature.auth.RegisterActivity" />
+        <activity android:name=".feature.auth.ForgotPasswordActivity" />
+        <activity android:name=".feature.auth.OtpAuthActivity" />
+        <activity android:name=".feature.category.CategoryActivity" />
+
+        <activity android:name=".feature.auth.ResetPasswordActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="doanck" android:host="auth" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

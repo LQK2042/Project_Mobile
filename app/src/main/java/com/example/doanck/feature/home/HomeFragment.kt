@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Geocoder
@@ -25,6 +26,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.doanck.R
+import com.example.doanck.data.remote.supabase.AuthStore
+import com.example.doanck.feature.auth.EXTRA_RETURN_RESULT
+import com.example.doanck.feature.auth.LoginActivity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -47,6 +51,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var tvAddress: TextView
     private lateinit var btnLocate: ImageButton
+    private lateinit var ibProfile: ImageButton
 
     private var searchJob: Job? = null
 
@@ -57,6 +62,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private companion object {
         const val KEY_ADDR = "addr_text"
     }
+
+    // pending action after login
+    private var pendingAfterLogin: (() -> Unit)? = null
+
+    private val loginLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+            if (res.resultCode == Activity.RESULT_OK && AuthStore.isLoggedIn(requireContext())) {
+                pendingAfterLogin?.invoke()
+            }
+            pendingAfterLogin = null
+        }
 
     // 1) Xin quyền
     private val permissionLauncher =
@@ -84,6 +100,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         tvAddress = view.findViewById(R.id.tvCurrentAddress)
         btnLocate = view.findViewById(R.id.btnLocate)
+        ibProfile = view.findViewById(R.id.ibProfile)
 
         // Hiện địa chỉ đã lưu nếu có
         tvAddress.text = prefs.getString(KEY_ADDR, "Chọn địa chỉ")
@@ -91,6 +108,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // Bấm vào địa chỉ -> dialog cập nhật
         tvAddress.setOnClickListener { showUpdateDialog() }
         btnLocate.setOnClickListener { startAutoUpdateLocation() }
+
+        // ✅ Profile: bấm là yêu cầu login
+        ibProfile.setOnClickListener {
+            requireLoginThen {
+                // Mở profile (đổi className đúng activity bạn có)
+                val intent = Intent().setClassName(
+                    requireContext(),
+                    "com.example.doanck.feature.profile.ProfileActivity"
+                )
+                try {
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Chưa tìm thấy ProfileActivity", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
         // RecyclerView shops
         val rv = view.findViewById<RecyclerView>(R.id.rvShops)
@@ -100,8 +133,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         adapter = ShopAdapter { shop ->
-            val args = bundleOf("shopId" to shop.id, "shopName" to shop.name)
-            findNavController().navigate(R.id.action_home_to_shopDetail, args)
+            // ✅ click shop -> bắt login
+            requireLoginThen {
+                val args = bundleOf("shopId" to shop.id, "shopName" to shop.name)
+                findNavController().navigate(R.id.action_home_to_shopDetail, args)
+            }
         }
         rv.adapter = adapter
 
@@ -117,11 +153,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val rvSuggest = view.findViewById<RecyclerView>(R.id.rvSuggest)
         val suggestAdapter = ProductSuggestAdapter { s ->
-            val args = bundleOf("shopId" to s.shopId, "shopName" to s.shopName)
-            findNavController().navigate(R.id.action_home_to_shopDetail, args)
+            // ✅ click suggestion -> bắt login
+            requireLoginThen {
+                val args = bundleOf("shopId" to s.shopId, "shopName" to s.shopName)
+                findNavController().navigate(R.id.action_home_to_shopDetail, args)
 
-            sv.setQuery("", false)
-            sv.clearFocus()
+                sv.setQuery("", false)
+                sv.clearFocus()
+            }
         }
         rvSuggest.adapter = suggestAdapter
 
@@ -158,30 +197,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
      * ✅ Ép SearchView mở sẵn + hiện hint ngay từ đầu (không cần click)
      */
     private fun setupSearchViewAlwaysHint(sv: SearchView) {
-        // ép mở luôn
         sv.setIconifiedByDefault(false)
         sv.isIconified = false
         sv.onActionViewExpanded()
 
-        // đặt hint (chắc chắn)
         sv.queryHint = "Nay bạn muốn ăn gì?"
 
-        // chỉnh màu text/hint
         val searchText = sv.findViewById<SearchView.SearchAutoComplete>(
             androidx.appcompat.R.id.search_src_text
         )
         searchText.setTextColor(Color.BLACK)
         searchText.setHintTextColor(Color.DKGRAY)
 
-        // bỏ nền/underline mặc định
         val plate = sv.findViewById<View>(androidx.appcompat.R.id.search_plate)
         plate.setBackgroundColor(Color.TRANSPARENT)
 
-        // đổi màu icon search
         val magIcon = sv.findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
         magIcon.setColorFilter(Color.BLACK)
 
-        // không bật bàn phím khi vào màn, nhưng hint vẫn hiện
         sv.clearFocus()
     }
 
@@ -248,7 +281,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     return@addOnSuccessListener
                 }
 
-                // ✅ Geocoder chạy IO để khỏi lag
                 viewLifecycleOwner.lifecycleScope.launch {
                     val addr = withContext(Dispatchers.IO) {
                         reverseGeocode(loc.latitude, loc.longitude)
@@ -274,5 +306,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun saveAddress(addr: String) {
         prefs.edit().putString(KEY_ADDR, addr).apply()
         tvAddress.text = addr
+    }
+
+    private fun requireLoginThen(action: () -> Unit) {
+        if (AuthStore.isLoggedIn(requireContext())) {
+            action()
+            return
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Cần đăng nhập")
+            .setMessage("Bạn cần đăng nhập để xem/đặt món.")
+            .setNegativeButton("Hủy", null)
+            .setPositiveButton("Đăng nhập") { _, _ ->
+                pendingAfterLogin = action
+                val i = Intent(requireContext(), LoginActivity::class.java)
+                    .putExtra(EXTRA_RETURN_RESULT, true)
+                loginLauncher.launch(i)
+            }
+            .show()
     }
 }
