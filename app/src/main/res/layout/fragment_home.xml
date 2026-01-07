@@ -63,15 +63,40 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- ✅ Thanh tìm kiếm món ăn -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/svFood"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:queryHint="Tìm món ăn (VD: phở, trà sữa...)"
+        android:iconifiedByDefault="false"
+        app:layout_constraintTop_toBottomOf="@id/cardAddress"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <!-- ✅ Danh sách gợi ý theo tên product (ẩn khi không search) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSuggest"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/svFood"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="6dp"/>
+
+    <!-- ✅ List shop (nằm dưới gợi ý) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvShops"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/cardAddress"
+        app:layout_constraintTop_toBottomOf="@id/rvSuggest"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="8dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

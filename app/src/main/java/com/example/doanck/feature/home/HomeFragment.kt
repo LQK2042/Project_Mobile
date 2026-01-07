@@ -82,7 +82,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // ✅ Bấm vào địa chỉ -> hiện dialog Cập nhật / Hủy
         tvAddress.setOnClickListener { showUpdateDialog() }
 
-        // ✅ Icon vòng vàng -> cập nhật luôn
         btnLocate.setOnClickListener { startAutoUpdateLocation() }
 
         // RecyclerView shops (giữ như bạn)
@@ -97,6 +96,46 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             vm.shops.collect { adapter.submitList(it) }
         }
         vm.load()
+        val sv = view.findViewById<androidx.appcompat.widget.SearchView>(R.id.svFood)
+        val rvSuggest = view.findViewById<RecyclerView>(R.id.rvSuggest)
+
+        val suggestAdapter = ProductSuggestAdapter { s ->
+            // click gợi ý -> mở quán đó
+            val args = bundleOf("shopId" to s.shopId, "shopName" to s.shopName)
+            findNavController().navigate(R.id.action_home_to_shopDetail, args)
+
+            // clear search + ẩn suggestions
+            sv.setQuery("", false)
+            sv.clearFocus()
+        }
+        rvSuggest.adapter = suggestAdapter
+
+// collect suggestions
+        viewLifecycleOwner.lifecycleScope.launch {
+            vm.suggestions.collect { list ->
+                val show = list.isNotEmpty()
+                rvSuggest.visibility = if (show) View.VISIBLE else View.GONE
+                suggestAdapter.submitList(list)
+            }
+        }
+
+// debounce search
+        var searchJob: kotlinx.coroutines.Job? = null
+
+        sv.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean = true
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val key = newText.orEmpty()
+                searchJob?.cancel()
+                searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                    kotlinx.coroutines.delay(300)
+                    vm.doSearch(key)
+                }
+                return true
+            }
+        })
+
     }
 
     private fun showUpdateDialog() {
