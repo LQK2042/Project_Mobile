@@ -11,7 +11,7 @@ import retrofit2.http.GET;
 
 public interface CategoryApi {
 
-    @GET("api.php?action=products")
+    @GET("api.js?action=products")
     Call<CategoryResponse> getCategories();
 }
 //end

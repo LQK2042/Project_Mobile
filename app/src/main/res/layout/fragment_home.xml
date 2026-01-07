@@ -4,35 +4,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<< HEAD
     android:background="#FA9200"
     android:padding="16dp"
     android:fitsSystemWindows="true">
-=======
-    android:padding="12dp"
-    android:fitsSystemWindows="true">
 
+    <!-- Top row: Address card (left) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardAddress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
         app:cardCornerRadius="16dp"
-        app:cardUseCompatPadding="true"
+        app:cardElevation="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toStartOf="@+id/btnProfile">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp">
 
-            <!-- ✅ NÚT ĐỊNH VỊ LẠI (vòng vàng) -->
             <ImageButton
                 android:id="@+id/btnLocate"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@android:color/transparent"
                 android:src="@android:drawable/ic_menu_mylocation"
                 android:contentDescription="Locate"
                 android:padding="6dp"
@@ -67,40 +64,16 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
->>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
 
-    <!-- Location -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardLocation"
-        android:layout_width="0dp"
-        android:layout_height="46dp"
-        android:layout_marginEnd="10dp"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnProfile">
-
-        <EditText
-            android:id="@+id/etLocation"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:hint="Location"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:singleLine="true" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Profile (tròn) -->
+    <!-- Top row: Profile button (right) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/btnProfile"
         android:layout_width="46dp"
         android:layout_height="46dp"
         app:cardCornerRadius="23dp"
         app:cardElevation="0dp"
-        app:layout_constraintTop_toTopOf="@id/cardLocation"
-        app:layout_constraintBottom_toBottomOf="@id/cardLocation"
+        app:layout_constraintTop_toTopOf="@id/cardAddress"
+        app:layout_constraintBottom_toBottomOf="@id/cardAddress"
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
@@ -112,7 +85,7 @@
             android:src="@android:drawable/ic_menu_myplaces" />
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Search -->
+    <!-- Search row -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardSearch"
         android:layout_width="0dp"
@@ -120,7 +93,7 @@
         android:layout_marginTop="10dp"
         app:cardCornerRadius="24dp"
         app:cardElevation="0dp"
-        app:layout_constraintTop_toBottomOf="@id/cardLocation"
+        app:layout_constraintTop_toBottomOf="@id/cardAddress"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -155,20 +128,22 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- GRID món ăn (giống ảnh) -->
+    <!-- List shops -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFoods"
+        android:id="@+id/rvShops"
         android:layout_width="0dp"
         android:layout_height="0dp"
-<<<<<<< HEAD
         android:layout_marginTop="14dp"
         android:overScrollMode="never"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/cardSearch"
         app:layout_constraintBottom_toTopOf="@id/bottomBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Bottom bar (Home + Cart) -->
+    <!-- Bottom bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomBar"
         android:layout_width="0dp"
@@ -202,13 +177,5 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="70dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-=======
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/cardAddress"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
->>>>>>> a069341194d7ff5844d7cd893c81f7cc4c5d0971
 
 </androidx.constraintlayout.widget.ConstraintLayout>

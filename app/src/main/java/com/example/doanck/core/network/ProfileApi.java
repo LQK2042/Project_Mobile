@@ -7,6 +7,6 @@ import retrofit2.http.GET;
 
 public interface ProfileApi {
 
-    @GET("api.php?action=profile_get")
+    @GET("api.js?action=profile_get")
     Call<ProfileResponse> getProfile();
 }

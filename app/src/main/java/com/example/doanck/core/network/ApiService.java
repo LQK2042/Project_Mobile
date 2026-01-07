@@ -20,24 +20,24 @@ import com.example.doanck.data.model.ProductResponse;
 
 public interface ApiService {
 
-    @POST("api.php?action=login")
+    @POST("api.js?action=login")
     Call<LoginResponse> login(@Body LoginRequest req);
 
-    @POST("api.php?action=register")
+    @POST("api.js?action=register")
     Call<DefaultResponse> register(@Body RegisterRequest req);
 
     // Password reset endpoints
-    @POST("api.php")
+    @POST("api.js")
     Call<GenericResponse> forgotPassword(@Query("action") String action, @Body ForgotPasswordRequest body);
 
-    @POST("api.php")
+    @POST("api.js")
     Call<VerifyOtpResponse> verifyOtp(@Query("action") String action, @Body VerifyOtpRequest body);
 
-    @POST("api.php")
+    @POST("api.js")
     Call<GenericResponse> resetPassword(@Query("action") String action, @Body ResetPasswordRequest body);
 
     // Product endpoints
-    @GET("api.php?action=products")
+    @GET("api.js?action=products")
     Call<ProductResponse> getProducts();
 
 }

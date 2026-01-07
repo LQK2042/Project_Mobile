@@ -1,5 +1,3 @@
-//code thu thach 5 - hoatd
-//start
 package com.example.doanck.data.model;
 
 
